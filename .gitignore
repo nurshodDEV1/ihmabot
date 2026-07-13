@@ -1,0 +1,22 @@
+# Muhit
+.env
+
+# Ma'lumotlar bazasi
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Loglar
+*.log
+
+# IDE
+.idea/
+.vscode/
