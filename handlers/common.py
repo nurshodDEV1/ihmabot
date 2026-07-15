@@ -71,7 +71,14 @@ async def reg_phone_contact(message: Message, state: FSMContext):
 
 @router.message(Reg.phone, F.text)
 async def reg_phone_text(message: Message, state: FSMContext):
-    await db.update_phone(message.from_user.id, message.text.strip())
+    phone = message.text.strip()
+    if not phone:
+        user = await db.get_user(message.from_user.id)
+        lang = get_lang(user)
+        await message.answer(t(lang, "phone_required"))
+        await message.answer(t(lang, "ask_phone"), reply_markup=kb.phone_kb(lang))
+        return
+    await db.update_phone(message.from_user.id, phone)
     await _ask_fullname(message, state)
 
 
@@ -83,7 +90,14 @@ async def _ask_fullname(message: Message, state: FSMContext):
 
 @router.message(Reg.fullname, F.text)
 async def reg_fullname(message: Message, state: FSMContext):
-    await db.update_fio(message.from_user.id, message.text.strip())
+    fio = message.text.strip()
+    if not fio:
+        user = await db.get_user(message.from_user.id)
+        lang = get_lang(user)
+        await message.answer(t(lang, "fullname_required"))
+        await message.answer(t(lang, "ask_fullname"), reply_markup=ReplyKeyboardRemove())
+        return
+    await db.update_fio(message.from_user.id, fio)
     await _ask_address(message, state)
 
 
@@ -95,7 +109,14 @@ async def _ask_address(message: Message, state: FSMContext):
 
 @router.message(Reg.address, F.text)
 async def reg_address(message: Message, state: FSMContext):
-    await db.update_address(message.from_user.id, message.text.strip())
+    address = message.text.strip()
+    if not address:
+        user = await db.get_user(message.from_user.id)
+        lang = get_lang(user)
+        await message.answer(t(lang, "address_required"))
+        await message.answer(t(lang, "ask_address"), reply_markup=ReplyKeyboardRemove())
+        return
+    await db.update_address(message.from_user.id, address)
     await _finish_registration(message, state)
 
 
