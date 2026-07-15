@@ -84,6 +84,18 @@ async def _ask_fullname(message: Message, state: FSMContext):
 @router.message(Reg.fullname, F.text)
 async def reg_fullname(message: Message, state: FSMContext):
     await db.update_fio(message.from_user.id, message.text.strip())
+    await _ask_address(message, state)
+
+
+async def _ask_address(message: Message, state: FSMContext):
+    await state.set_state(Reg.address)
+    user = await db.get_user(message.from_user.id)
+    await message.answer(t(get_lang(user), "ask_address"), reply_markup=ReplyKeyboardRemove())
+
+
+@router.message(Reg.address, F.text)
+async def reg_address(message: Message, state: FSMContext):
+    await db.update_address(message.from_user.id, message.text.strip())
     await _finish_registration(message, state)
 
 
@@ -143,3 +155,9 @@ async def reg_phone_nudge(message: Message):
 async def reg_fullname_nudge(message: Message):
     user = await db.get_user(message.from_user.id)
     await message.answer(t(get_lang(user), "ask_fullname"))
+
+
+@router.message(Reg.address)
+async def reg_address_nudge(message: Message):
+    user = await db.get_user(message.from_user.id)
+    await message.answer(t(get_lang(user), "ask_address"))

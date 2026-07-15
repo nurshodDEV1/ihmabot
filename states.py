@@ -7,6 +7,7 @@ class Reg(StatesGroup):
     language = State()
     phone = State()
     fullname = State()
+    address = State()
 
 
 class NewAppeal(StatesGroup):

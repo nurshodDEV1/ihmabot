@@ -71,6 +71,7 @@ async def _send_appeal(target: Message, appeal: dict, lang: str):
         name=citizen_name(citizen),
         tg=citizen_nick(citizen),
         phone=esc((citizen or {}).get("phone") or "—"),
+        address=esc((citizen or {}).get("address") or "—"),
         category=t(lang, appeal["category"]),
         status=status_text(lang, appeal["status"]),
         date=fmt_date(appeal["created_at"]),

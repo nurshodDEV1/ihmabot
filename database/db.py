@@ -30,6 +30,7 @@ async def init_db() -> None:
                 fio         TEXT,
                 username    TEXT,
                 phone       TEXT,
+                address     TEXT,
                 language    TEXT    DEFAULT 'uz_latin',
                 role        TEXT    DEFAULT 'citizen',
                 created_at  TEXT    DEFAULT (datetime('now', 'localtime'))
@@ -68,11 +69,13 @@ async def init_db() -> None:
             """
         )
 
-        # Migratsiya: eski bazaga 'fio' ustunini qo'shish (agar yo'q bo'lsa)
+        # Migratsiya: eski bazaga 'fio' va 'address' ustunlarini qo'shish (agar yo'q bo'lsa)
         cur = await db.execute("PRAGMA table_info(users)")
         columns = [row[1] for row in await cur.fetchall()]
         if "fio" not in columns:
             await db.execute("ALTER TABLE users ADD COLUMN fio TEXT")
+        if "address" not in columns:
+            await db.execute("ALTER TABLE users ADD COLUMN address TEXT")
 
         # Adminlarni bootstrap qilish
         for admin_id in config.admin_ids:
@@ -135,6 +138,14 @@ async def update_fio(user_id: int, fio: str) -> None:
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(
             "UPDATE users SET fio = ? WHERE user_id = ?", (fio, user_id)
+        )
+        await db.commit()
+
+
+async def update_address(user_id: int, address: str) -> None:
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            "UPDATE users SET address = ? WHERE user_id = ?", (address, user_id)
         )
         await db.commit()
 
