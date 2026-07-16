@@ -72,12 +72,29 @@ async def reg_phone_contact(message: Message, state: FSMContext):
 @router.message(Reg.phone, F.text)
 async def reg_phone_text(message: Message, state: FSMContext):
     phone = message.text.strip()
+    user = await db.get_user(message.from_user.id)
+    lang = get_lang(user)
+
     if not phone:
-        user = await db.get_user(message.from_user.id)
-        lang = get_lang(user)
         await message.answer(t(lang, "phone_required"))
         await message.answer(t(lang, "ask_phone"), reply_markup=kb.phone_kb(lang))
         return
+
+    # Telefon raqam validatsiyasi: faqat raqam, +, -, (, ), probel
+    # Kamida 9 ta raqam bo'lishi kerak
+    digits_only = "".join(ch for ch in phone if ch.isdigit())
+    if len(digits_only) < 9:
+        await message.answer(t(lang, "phone_invalid"))
+        await message.answer(t(lang, "ask_phone"), reply_markup=kb.phone_kb(lang))
+        return
+
+    # Faqat ruxsat etilgan belgilarni tekshirish
+    allowed_chars = set("0123456789+-(). ")
+    if not all(ch in allowed_chars for ch in phone):
+        await message.answer(t(lang, "phone_invalid"))
+        await message.answer(t(lang, "ask_phone"), reply_markup=kb.phone_kb(lang))
+        return
+
     await db.update_phone(message.from_user.id, phone)
     await _ask_fullname(message, state)
 
