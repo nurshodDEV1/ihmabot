@@ -230,6 +230,18 @@ async def get_appeals_by_status(status: str, limit: int = 20) -> list[dict]:
         return [dict(r) for r in await cur.fetchall()]
 
 
+async def get_unassigned_appeals(limit: int = 20) -> list[dict]:
+    """Hali hech kim olmagan (operator_id = NULL) va yopilmagan murojaatlar."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM appeals WHERE operator_id IS NULL AND status != ? "
+            "ORDER BY id DESC LIMIT ?",
+            (STATUS_CLOSED, limit),
+        )
+        return [dict(r) for r in await cur.fetchall()]
+
+
 async def get_operator_appeals(operator_id: int, limit: int = 20) -> list[dict]:
     """Operatorga biriktirilgan, hali yopilmagan murojaatlar."""
     async with aiosqlite.connect(DB_PATH) as db:
@@ -238,6 +250,18 @@ async def get_operator_appeals(operator_id: int, limit: int = 20) -> list[dict]:
             "SELECT * FROM appeals WHERE operator_id = ? AND status != ? "
             "ORDER BY id DESC LIMIT ?",
             (operator_id, STATUS_CLOSED, limit),
+        )
+        return [dict(r) for r in await cur.fetchall()]
+
+
+async def get_all_in_progress_appeals(limit: int = 50) -> list[dict]:
+    """Barcha ko'rib chiqilayotgan murojaatlar (admin uchun) — kim olganidan qat'iy nazar."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cur = await db.execute(
+            "SELECT * FROM appeals WHERE operator_id IS NOT NULL AND status != ? "
+            "ORDER BY id DESC LIMIT ?",
+            (STATUS_CLOSED, limit),
         )
         return [dict(r) for r in await cur.fetchall()]
 

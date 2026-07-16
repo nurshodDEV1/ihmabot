@@ -23,7 +23,8 @@ async def new_appeals_list(message: Message, state: FSMContext):
     await state.clear()
     user = await db.get_user(message.from_user.id)
     lang = get_lang(user)
-    appeals = await db.get_appeals_by_status(db.STATUS_NEW)
+    # Faqat yangi va hali hech kim olmagan murojaatlar
+    appeals = await db.get_unassigned_appeals()
     if not appeals:
         await message.answer(t(lang, "op_no_new"))
         return
@@ -39,7 +40,16 @@ async def my_work_list(message: Message, state: FSMContext):
     uid = message.from_user.id
     user = await db.get_user(uid)
     lang = get_lang(user)
-    appeals = await db.get_operator_appeals(uid)
+    from utils import get_role
+    role = get_role(user)
+
+    # Admin barcha ko'rib chiqilayotgan murojaatlarni ko'radi
+    if role == db.ROLE_ADMIN:
+        appeals = await db.get_all_in_progress_appeals()
+    else:
+        # Operator faqat o'zi olgan murojaatlarni ko'radi
+        appeals = await db.get_operator_appeals(uid)
+
     if not appeals:
         await message.answer(t(lang, "op_no_work"))
         return
@@ -65,6 +75,15 @@ async def open_appeal(cq: CallbackQuery, state: FSMContext):
 
 async def _send_appeal(target: Message, appeal: dict, lang: str):
     citizen = await db.get_user(appeal["user_id"])
+
+    # Operator ma'lumotini olish (agar biriktirilgan bo'lsa)
+    operator_info = "—"
+    if appeal.get("operator_id"):
+        operator = await db.get_user(appeal["operator_id"])
+        if operator:
+            op_name = operator.get("fio") or operator.get("full_name") or "Operator"
+            operator_info = f'{esc(op_name)} (ID: {appeal["operator_id"]})'
+
     text = t(
         lang, "op_appeal_detail",
         number=appeal["id"],
@@ -76,6 +95,7 @@ async def _send_appeal(target: Message, appeal: dict, lang: str):
         status=status_text(lang, appeal["status"]),
         date=fmt_date(appeal["created_at"]),
         text=esc(appeal["text"]),
+        operator=operator_info,
     )
     markup = kb.appeal_actions_kb(lang, appeal)
     # Ilova (rasm/hujjat) bo'lsa alohida yuboramiz — caption uzunligi cheklovidan qochish uchun
