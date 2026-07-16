@@ -122,3 +122,12 @@ def operators_manage_kb(lang: str) -> InlineKeyboardMarkup:
     b.button(text=t(lang, "btn_remove_operator"), callback_data="adm_rem_op")
     b.adjust(1)
     return b.as_markup()
+
+
+def feedback_kb(lang: str, appeal_id: int) -> InlineKeyboardMarkup:
+    """Fuqaro javobdan keyin: javob oldim yoki qoniqmadim."""
+    b = InlineKeyboardBuilder()
+    b.button(text=t(lang, "btn_satisfied"), callback_data=f"satisfied:{appeal_id}")
+    b.button(text=t(lang, "btn_not_satisfied"), callback_data=f"notsatisfied:{appeal_id}")
+    b.adjust(1)
+    return b.as_markup()

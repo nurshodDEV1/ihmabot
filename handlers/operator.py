@@ -215,13 +215,14 @@ async def reply_send(message: Message, state: FSMContext):
     await message.answer(t(lang, "op_reply_sent"))
     await show_menu(message, user)
 
-    # Fuqaroga javobni yuboramiz
+    # Fuqaroga javobni yuboramiz (feedback tugmalari bilan)
     citizen = await db.get_user(appeal["user_id"])
     clang = get_lang(citizen)
     try:
         await message.bot.send_message(
             appeal["user_id"],
             t(clang, "notify_reply", number=appeal_id, text=esc(message.text)),
+            reply_markup=kb.feedback_kb(clang, appeal_id),
         )
     except Exception:
         pass

@@ -126,6 +126,14 @@ TEXTS: dict[str, dict[str, str]] = {
         "notify_new_appeal": "🔔 <b>Yangi murojaat!</b>\n\n🆔 №{number}\n🗂 {category}\n👤 {name}\n\n📄 {text}",
         "notify_reply": "💬 <b>Murojaatingizga javob keldi!</b>\n\n🆔 №{number}\n\n{text}",
         "notify_status_closed": "🔒 Sizning №{number} raqamli murojaatingiz yopildi. Rahmat!",
+
+        # Feedback (javobdan keyin)
+        "btn_satisfied": "✅ Javob oldim",
+        "btn_not_satisfied": "❌ Javobdan qoniqmadim",
+        "feedback_satisfied_msg": "✅ Rahmat! Sizning №{number} raqamli murojaatingiz yopildi.\n\nYangi murojaat yuborish uchun menyudan foydalaning.",
+        "feedback_satisfied_alert": "Murojaat yopildi ✅",
+        "feedback_not_satisfied_msg": "Sizning №{number} raqamli murojaatingiz bo'yicha qo'shimcha ma'lumot yoki izoh yozing.\n\nBu qayta so'rov sifatida operatorlarga yuboriladi.",
+        "followup_created": "✅ Qayta so'rovingiz qabul qilindi!\n\n🆔 Yangi ariza raqamingiz: <b>№{number}</b>\n\nMutaxassislarimiz tez orada javob berishadi.",
     },
 
     # =====================================================================
@@ -223,6 +231,13 @@ TEXTS: dict[str, dict[str, str]] = {
         "notify_new_appeal": "🔔 <b>Янги мурожаат!</b>\n\n🆔 №{number}\n🗂 {category}\n👤 {name}\n\n📄 {text}",
         "notify_reply": "💬 <b>Мурожаатингизга жавоб келди!</b>\n\n🆔 №{number}\n\n{text}",
         "notify_status_closed": "🔒 Сизнинг №{number} рақамли мурожаатингиз ёпилди. Раҳмат!",
+
+        "btn_satisfied": "✅ Жавоб олдим",
+        "btn_not_satisfied": "❌ Жавобдан қониқмадим",
+        "feedback_satisfied_msg": "✅ Раҳмат! Сизнинг №{number} рақамли мурожаатингиз ёпилди.\n\nЯнги мурожаат юбориш учун менюдан фойдаланинг.",
+        "feedback_satisfied_alert": "Мурожаат ёпилди ✅",
+        "feedback_not_satisfied_msg": "Сизнинг №{number} рақамли мурожаатингиз бўйича қўшимча маълумот ёки изоҳ ёзинг.\n\nБу қайта сўров сифатида операторларга юборилади.",
+        "followup_created": "✅ Қайта сўровингиз қабул қилинди!\n\n🆔 Янги ариза рақамингиз: <b>№{number}</b>\n\nМутахассисларимиз тез орада жавоб беришади.",
     },
 
     # =====================================================================
@@ -320,6 +335,13 @@ TEXTS: dict[str, dict[str, str]] = {
         "notify_new_appeal": "🔔 <b>Новое обращение!</b>\n\n🆔 №{number}\n🗂 {category}\n👤 {name}\n\n📄 {text}",
         "notify_reply": "💬 <b>На ваше обращение поступил ответ!</b>\n\n🆔 №{number}\n\n{text}",
         "notify_status_closed": "🔒 Ваше обращение №{number} закрыто. Спасибо!",
+
+        "btn_satisfied": "✅ Ответ получен",
+        "btn_not_satisfied": "❌ Не удовлетворён ответом",
+        "feedback_satisfied_msg": "✅ Спасибо! Ваше обращение №{number} закрыто.\n\nДля нового обращения используйте меню.",
+        "feedback_satisfied_alert": "Обращение закрыто ✅",
+        "feedback_not_satisfied_msg": "Напишите дополнительную информацию или комментарий по вашему обращению №{number}.\n\nЭто будет отправлено операторам как повторный запрос.",
+        "followup_created": "✅ Ваш повторный запрос принят!\n\n🆔 Номер новой заявки: <b>№{number}</b>\n\nНаши специалисты скоро ответят.",
     },
 }
 

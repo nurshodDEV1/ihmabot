@@ -55,8 +55,28 @@ async def new_appeal_category(cq: CallbackQuery, state: FSMContext):
 
 @router.message(NewAppeal.text, F.text)
 async def new_appeal_text(message: Message, state: FSMContext):
+    data = await state.get_data()
     user = await db.get_user(message.from_user.id)
     lang = get_lang(user)
+
+    # Agar qayta so'rov bo'lsa — darhol yaratamiz (fayl so'ramasdan)
+    if data.get("is_followup"):
+        appeal_id = await db.create_appeal(
+            user_id=message.from_user.id,
+            category=data["category"],
+            text=f"[QAYTA SO'ROV — #{data['original_appeal_id']}]\n\n{message.text}",
+            file_id=None,
+            file_type=None,
+        )
+        await state.clear()
+        await message.answer(
+            t(lang, "followup_created", number=appeal_id),
+            reply_markup=kb.main_menu_kb(lang),
+        )
+        await notify_new_appeal(message.bot, appeal_id)
+        return
+
+    # Oddiy yangi murojaat — davom etamiz
     await state.update_data(text=message.text)
     await state.set_state(NewAppeal.media)
     await message.answer(t(lang, "ask_media"), reply_markup=kb.skip_cancel_kb(lang))
@@ -191,3 +211,62 @@ async def check_status_result(message: Message, state: FSMContext):
         text += t(lang, "no_response_yet")
 
     await message.answer(text, reply_markup=kb.main_menu_kb(lang))
+
+
+# ---------------------------------------------------------------------------
+# Javobdan keyin feedback (qoniqdi/qoniqmadi)
+# ---------------------------------------------------------------------------
+@router.callback_query(F.data.startswith("satisfied:"))
+async def feedback_satisfied(cq: CallbackQuery):
+    """Fuqaro javobdan qoniqqan — murojaatni yopamiz."""
+    appeal_id = int(cq.data.split(":", 1)[1])
+    user = await db.get_user(cq.from_user.id)
+    lang = get_lang(user)
+    appeal = await db.get_appeal(appeal_id)
+
+    if not appeal or appeal["user_id"] != cq.from_user.id:
+        await cq.answer(t(lang, "appeal_not_found"), show_alert=True)
+        return
+
+    # Murojaatni yopamiz
+    await db.update_status(appeal_id, db.STATUS_CLOSED)
+
+    try:
+        await cq.message.edit_reply_markup(reply_markup=None)
+    except Exception:
+        pass
+
+    await cq.message.answer(t(lang, "feedback_satisfied_msg", number=appeal_id))
+    await cq.answer(t(lang, "feedback_satisfied_alert"))
+
+
+@router.callback_query(F.data.startswith("notsatisfied:"))
+async def feedback_not_satisfied(cq: CallbackQuery, state: FSMContext):
+    """Fuqaro javobdan qoniqmagan — qayta so'rov yuborish imkoniyati."""
+    appeal_id = int(cq.data.split(":", 1)[1])
+    user = await db.get_user(cq.from_user.id)
+    lang = get_lang(user)
+    appeal = await db.get_appeal(appeal_id)
+
+    if not appeal or appeal["user_id"] != cq.from_user.id:
+        await cq.answer(t(lang, "appeal_not_found"), show_alert=True)
+        return
+
+    try:
+        await cq.message.edit_reply_markup(reply_markup=None)
+    except Exception:
+        pass
+
+    # Qayta so'rov yuborish uchun FSM state
+    await state.set_state(NewAppeal.text)
+    await state.update_data(
+        category=appeal["category"],
+        is_followup=True,
+        original_appeal_id=appeal_id,
+    )
+
+    await cq.message.answer(
+        t(lang, "feedback_not_satisfied_msg", number=appeal_id),
+        reply_markup=kb.cancel_kb(lang),
+    )
+    await cq.answer()
