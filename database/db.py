@@ -259,8 +259,11 @@ async def get_all_in_progress_appeals(limit: int = 50) -> list[dict]:
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
         cur = await db.execute(
-            "SELECT * FROM appeals WHERE operator_id IS NOT NULL AND status != ? "
-            "ORDER BY id DESC LIMIT ?",
+            "SELECT a.*, u.full_name as operator_name, u.fio as operator_fio "
+            "FROM appeals a "
+            "LEFT JOIN users u ON a.operator_id = u.user_id "
+            "WHERE a.operator_id IS NOT NULL AND a.status != ? "
+            "ORDER BY a.id DESC LIMIT ?",
             (STATUS_CLOSED, limit),
         )
         return [dict(r) for r in await cur.fetchall()]

@@ -92,7 +92,18 @@ def appeals_list_kb(appeals: list[dict], lang: str, prefix: str) -> InlineKeyboa
     """Murojaatlar ro'yxatini tugmalar sifatida chiqaradi."""
     b = InlineKeyboardBuilder()
     for a in appeals:
-        label = f"№{a['id']} · {t(lang, a['category'])}"
+        # Operator ma'lumotini qo'shamiz (agar biriktirilgan bo'lsa)
+        if a.get("operator_id"):
+            op_name = a.get("operator_fio") or a.get("operator_name") or "?"
+            # Ismning birinchi so'zi va familiya (agar bor bo'lsa)
+            name_parts = op_name.strip().split()
+            if len(name_parts) > 1:
+                short_name = f"{name_parts[0]} {name_parts[-1][0]}."
+            else:
+                short_name = name_parts[0] if name_parts else "?"
+            label = f"№{a['id']} · {t(lang, a['category'])} · 👤 {short_name}"
+        else:
+            label = f"№{a['id']} · {t(lang, a['category'])}"
         b.button(text=label, callback_data=f"{prefix}:{a['id']}")
     b.adjust(1)
     return b.as_markup()

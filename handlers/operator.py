@@ -43,12 +43,8 @@ async def my_work_list(message: Message, state: FSMContext):
     from utils import get_role
     role = get_role(user)
 
-    # Admin barcha ko'rib chiqilayotgan murojaatlarni ko'radi
-    if role == db.ROLE_ADMIN:
-        appeals = await db.get_all_in_progress_appeals()
-    else:
-        # Operator faqat o'zi olgan murojaatlarni ko'radi
-        appeals = await db.get_operator_appeals(uid)
+    # Admin va operator barcha ko'rib chiqilayotgan murojaatlarni ko'radi
+    appeals = await db.get_all_in_progress_appeals()
 
     if not appeals:
         await message.answer(t(lang, "op_no_work"))
